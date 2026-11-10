@@ -1,0 +1,190 @@
+name: Windows release
+
+'on':
+  push:
+    branches: [main]
+    paths:
+      - package.json
+      - package-lock.json
+      - .github/workflows/release.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: configura-windows-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.repository == 'ItsDeimox/configura' && github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+    steps:
+      - name: Check out the exact release commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Verify version and existing release
+        id: version
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $lock = Get-Content package-lock.json -Raw | ConvertFrom-Json -AsHashtable
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Expected a stable semantic version, received: $version" }
+          if ($lock['version'] -ne $version -or $lock['packages']['']['version'] -ne $version) {
+            throw 'package.json and package-lock.json versions must match.'
+          }
+          $tag = "v$version"
+          $head = (git rev-parse HEAD).Trim()
+          if ($LASTEXITCODE -ne 0 -or $head -ne $env:GITHUB_SHA) { throw 'Checkout does not match GITHUB_SHA.' }
+          $existingTag = (git tag --list $tag) -join ''
+          if ($LASTEXITCODE -ne 0) { throw 'Could not inspect Git tags.' }
+          if ($existingTag) {
+            $tagCommit = (git rev-parse "${tag}^{commit}").Trim()
+            if ($LASTEXITCODE -ne 0) { throw "Could not resolve $tag." }
+            if ($tagCommit -ne $head) {
+              throw "$tag already targets $tagCommit. Bump package.json and package-lock.json; published versions are never overwritten."
+            }
+          }
+          $releaseText = gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$tag" 2>&1
+          $releaseExit = $LASTEXITCODE
+          $skip = 'false'
+          if ($releaseExit -eq 0) {
+            if (-not $existingTag) { throw "Release $tag exists without the expected local tag. Inspect repository state." }
+            $release = ($releaseText -join "`n") | ConvertFrom-Json
+            if ($release.draft) { throw "Draft $tag already exists. Inspect its assets and finish or remove that draft before retrying; this workflow does not overwrite it." }
+            if ($release.prerelease) { throw "$tag is a prerelease; this workflow publishes stable releases only." }
+            $skip = 'true'
+            Write-Host "$tag is already published from this exact commit. Nothing will be overwritten."
+          } elseif (($releaseText -join "`n") -notmatch '404') {
+            throw "Could not inspect GitHub release: $($releaseText -join ' ')"
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "skip=$skip" >> $env:GITHUB_OUTPUT
+          # A missing release is expected on first publication; clear gh's 404 exit code.
+          exit 0
+
+      - name: Install locked dependencies
+        if: steps.version.outputs.skip != 'true'
+        run: |
+          npm ci
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Test configuration editing
+        if: steps.version.outputs.skip != 'true'
+        run: |
+          npm test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run test:native
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build Windows x64 installer and archive
+        if: steps.version.outputs.skip != 'true'
+        run: |
+          npm run dist:win
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Install, exercise and uninstall the actual Windows application
+        if: steps.version.outputs.skip != 'true'
+        run: |
+          ./scripts/qa-installer.ps1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Validate artifacts and calculate checksums
+        if: steps.version.outputs.skip != 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $required = @(
+            "release/Configura-Setup-$env:RELEASE_VERSION-x64.exe",
+            "release/Configura-$env:RELEASE_VERSION-x64.zip",
+            'release/latest.yml'
+          )
+          foreach ($file in $required) {
+            if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw "Missing release artifact: $file" }
+            if ((Get-Item -LiteralPath $file).Length -eq 0) { throw "Empty release artifact: $file" }
+          }
+          # Full installer downloads are used; differential blockmaps are optional.
+          $blockmaps = @(Get-ChildItem release -Filter '*.blockmap' -File)
+          @'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const crypto = require('node:crypto');
+          const { createRequire } = require('node:module');
+          const updaterRequire = createRequire(require.resolve('electron-updater/package.json'));
+          const yaml = updaterRequire('js-yaml');
+          const metadata = yaml.load(fs.readFileSync('release/latest.yml', 'utf8'));
+          const version = process.env.RELEASE_VERSION;
+          const expected = `Configura-Setup-${version}-x64.exe`;
+          if (metadata.version !== version) throw new Error('latest.yml has a different version.');
+          const installer = metadata.files?.find(file => decodeURIComponent(file.url) === expected);
+          if (!installer) throw new Error(`latest.yml does not point to ${expected}.`);
+          if (metadata.path && decodeURIComponent(metadata.path) !== expected) throw new Error('Legacy updater path does not match the installer.');
+          const bytes = fs.readFileSync(path.join('release', expected));
+          const digest = crypto.createHash('sha512').update(bytes).digest('base64');
+          if (installer.sha512 !== digest || (metadata.sha512 && metadata.sha512 !== digest)) throw new Error('Updater SHA-512 does not match the installer.');
+          // electron-builder omits size for full NSIS packages without blockmaps.
+          if (installer.size != null && installer.size !== bytes.length) throw new Error('Updater size does not match the installer.');
+          console.log(`Updater metadata verified for ${expected} (${bytes.length} bytes).`);
+          '@ | node
+          if ($LASTEXITCODE -ne 0) { throw 'Updater metadata validation failed.' }
+          $files = @($required | ForEach-Object { Get-Item -LiteralPath $_ }) + $blockmaps
+          $checksums = $files | Sort-Object Name | ForEach-Object {
+            '{0}  {1}' -f (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $_.Name
+          }
+          $checksums | Set-Content release/SHA256SUMS.txt -Encoding utf8NoBOM
+          @"
+          ## Configura $env:RELEASE_VERSION
+
+          Editor visual de configurações para Windows x64, com abas, tipos de valor, modo texto e backups.
+
+          - Instalar: Configura-Setup-$env:RELEASE_VERSION-x64.exe
+          - Executar sem instalar: extrair Configura-$env:RELEASE_VERSION-x64.zip e abrir Configura.exe.
+          - O instalador registra Abrir com e Editar com Configura sem trocar seu aplicativo padrão.
+          - Atualizações da instalação ficam em Preferências > Atualizações.
+          - Esta distribuição ainda não possui assinatura Authenticode.
+
+          Consulte CHANGELOG.md no código-fonte desta tag para as alterações desta versão.
+          Integridade dos arquivos: SHA256SUMS.txt. Commit: $env:GITHUB_SHA.
+          "@ | Set-Content release/RELEASE_NOTES.md -Encoding utf8NoBOM
+
+      - name: Publish complete GitHub release
+        if: steps.version.outputs.skip != 'true'
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $assets = @(
+            "release/Configura-Setup-$env:RELEASE_VERSION-x64.exe",
+            "release/Configura-$env:RELEASE_VERSION-x64.zip",
+            'release/latest.yml',
+            'release/SHA256SUMS.txt'
+          ) | ForEach-Object { (Get-Item -LiteralPath $_).FullName }
+          $assets += @(Get-ChildItem release -Filter '*.blockmap' -File | ForEach-Object { $_.FullName })
+          gh release create $env:RELEASE_TAG @assets --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "Configura $env:RELEASE_VERSION" --notes-file release/RELEASE_NOTES.md --draft
+          if ($LASTEXITCODE -ne 0) { throw 'Release creation/upload failed. No existing assets were overwritten.' }
+          gh release edit $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Assets were uploaded, but release publication failed. Inspect the draft on GitHub.' }
+          "### Configura $env:RELEASE_VERSION" >> $env:GITHUB_STEP_SUMMARY
+          "Published from commit $env:GITHUB_SHA." >> $env:GITHUB_STEP_SUMMARY
+          "https://github.com/$env:GITHUB_REPOSITORY/releases/tag/$env:RELEASE_TAG" >> $env:GITHUB_STEP_SUMMARY

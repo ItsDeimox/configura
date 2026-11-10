@@ -1,0 +1,132 @@
+{
+  "name": "configura",
+  "productName": "Configura",
+  "version": "1.0.0",
+  "description": "A beautiful, lossless configuration editor for Windows.",
+  "author": {
+    "name": "Deimox",
+    "url": "https://github.com/ItsDeimox"
+  },
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "main": "electron/main.cjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ItsDeimox/configura.git"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "desktop": "electron .",
+    "dev:desktop": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && cross-env ELECTRON_RENDERER_URL=http://127.0.0.1:5173 electron .\"",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && vite build",
+    "test": "vitest run tests",
+    "test:native": "node --test electron/*.test.cjs",
+    "dist:win": "npm run build && cross-env ELECTRON_BUILDER_COMPRESSION_LEVEL=3 electron-builder --win nsis zip --x64 --publish never",
+    "release:win": "npm run build && cross-env ELECTRON_BUILDER_COMPRESSION_LEVEL=3 electron-builder --win nsis zip --x64 --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.11",
+    "iconv-lite": "^0.7.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/share-tech": "^5.2.7",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "latest",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "45.2.3",
+    "electron-builder": "26.18.0",
+    "playwright": "latest",
+    "resedit": "^3.1.0",
+    "typescript": "latest",
+    "vite": "8.3.7",
+    "vitest": "5.1.0",
+    "wait-on": "^8.0.4"
+  },
+  "build": {
+    "appId": "io.github.itsdeimox.configura",
+    "productName": "Configura",
+    "executableName": "Configura",
+    "asar": true,
+    "compression": "normal",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*.cjs",
+      "!electron/**/*.test.cjs",
+      "package.json",
+      "LICENSE",
+      "THIRD_PARTY_NOTICES.md"
+    ],
+    "extraResources": [
+      {
+        "from": "build/icon.png",
+        "to": "icon.png"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "Configura-${version}-${arch}.${ext}",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Configura",
+      "artifactName": "Configura-Setup-${version}-${arch}.${ext}",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "include": "build/installer.nsh",
+      "deleteAppDataOnUninstall": false,
+      "installerLanguages": [
+        "pt_BR",
+        "en_US"
+      ],
+      "language": "1046",
+      "script": "build/installer-script.nsi",
+      "useZip": true,
+      "differentialPackage": false,
+      "packElevateHelper": false
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "ItsDeimox",
+        "repo": "configura",
+        "releaseType": "release"
+      }
+    ],
+    "afterPack": "scripts/windows-resources.cjs",
+    "electronLanguages": [
+      "en-US",
+      "pt-BR"
+    ]
+  }
+}
