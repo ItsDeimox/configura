@@ -25,7 +25,7 @@ module.exports = async function windowsResources(context) {
     info.setFileVersion(numbers[0], numbers[1], numbers[2], 0, 1033);
     info.setProductVersion(numbers[0], numbers[1], numbers[2], 0, 1033);
     info.setStringValues({ lang: 1033, codepage: 1200 }, {
-      CompanyName: 'Deimox', FileDescription: 'Configura — Configuration Editor', ProductName: 'Configura',
+      CompanyName: 'Deimox', FileDescription: 'Ini Studio — Configuration Editor', ProductName: 'Ini Studio',
       InternalName: 'Configura', OriginalFilename: 'Configura.exe', LegalCopyright: 'Copyright (c) 2026 Deimox. MIT License.',
       FileVersion: version, ProductVersion: version,
     });

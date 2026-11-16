@@ -8,7 +8,7 @@ if (-not $IsWindows -or $env:GITHUB_ACTIONS -ne 'true') {
 }
 $project = Split-Path -Parent $PSScriptRoot
 $version = (Get-Content (Join-Path $project 'package.json') -Raw | ConvertFrom-Json).version
-if (-not $InstallerPath) { $InstallerPath = Join-Path $project "release/Configura-Setup-$version-x64.exe" }
+if (-not $InstallerPath) { $InstallerPath = Join-Path $project "release/IniStudio-Setup-$version-x64.exe" }
 $InstallerPath = (Resolve-Path -LiteralPath $InstallerPath).Path
 if (-not $EvidenceDirectory) { $EvidenceDirectory = Join-Path $project 'release/qa-windows' }
 New-Item -ItemType Directory -Path $EvidenceDirectory -Force | Out-Null
@@ -102,6 +102,7 @@ try {
   Mark-Pass 'silent installation creates the executable, app.asar, updater config and uninstaller'
 
   $command = '"' + $executable + '" "%1"'
+  Assert-RegistryValue 'Software\Classes\Applications\Configura.exe' 'FriendlyAppName' 'Ini Studio'
   Assert-RegistryValue 'Software\Classes\Applications\Configura.exe\shell\open\command' '' $command
   Assert-RegistryValue 'Software\Classes\Configura.ConfigFile\shell\open\command' '' $command
   foreach ($extension in $extensions) {

@@ -1,6 +1,6 @@
-# Configura icons
+# Ini Studio icons
 
-Original MIT-licensed icon assets made for Configura from the user-supplied concept.
+Original MIT-licensed icon assets made for Ini Studio from the user-supplied concept.
 
 ## Source
 

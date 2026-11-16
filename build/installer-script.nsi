@@ -45,7 +45,7 @@ Var closeRetries
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !define MUI_FINISHPAGE_RUN
-!define MUI_FINISHPAGE_RUN_TEXT "Abrir Configura"
+!define MUI_FINISHPAGE_RUN_TEXT "Abrir Ini Studio"
 !define MUI_FINISHPAGE_RUN_FUNCTION LaunchConfigura
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_UNPAGE_CONFIRM
@@ -71,12 +71,12 @@ FunctionEnd
 Function .onInit
   SetShellVarContext current
   ${IfNot} ${RunningX64}
-    MessageBox MB_OK|MB_ICONSTOP "O Configura precisa de Windows 10 ou 11 de 64 bits."
+    MessageBox MB_OK|MB_ICONSTOP "O Ini Studio precisa de Windows 10 ou 11 de 64 bits."
     SetErrorLevel 1633
     Quit
   ${EndIf}
   ${IfNot} ${AtLeastWin10}
-    MessageBox MB_OK|MB_ICONSTOP "O Configura precisa de Windows 10 ou mais recente."
+    MessageBox MB_OK|MB_ICONSTOP "O Ini Studio precisa de Windows 10 ou mais recente."
     SetErrorLevel 1633
     Quit
   ${EndIf}
@@ -87,7 +87,7 @@ Function .onInit
   Pop $1
   StrCpy $installerMutex $0
   ${If} $1 == 183
-    MessageBox MB_OK|MB_ICONINFORMATION "Já existe um instalador do Configura aberto." /SD IDOK
+    MessageBox MB_OK|MB_ICONINFORMATION "Já existe um instalador do Ini Studio aberto." /SD IDOK
     SetErrorLevel 1618
     Quit
   ${EndIf}
@@ -110,13 +110,13 @@ Function WaitForConfiguraToClose
       Goto check_running
     ${EndIf}
     IfSilent app_busy
-    MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "Salve seus arquivos e feche o Configura para continuar." IDRETRY retry_wait IDCANCEL app_busy
+    MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "Salve seus arquivos e feche o Ini Studio para continuar." IDRETRY retry_wait IDCANCEL app_busy
   retry_wait:
     StrCpy $closeRetries 0
     Goto check_running
   app_busy:
     SetErrorLevel 1618
-    Abort "O Configura ainda está aberto. A instalação foi interrompida."
+    Abort "O Ini Studio ainda está aberto. A instalação foi interrompida."
 FunctionEnd
 
 Function LaunchConfigura
@@ -138,7 +138,7 @@ Function .onInstSuccess
   ${EndIf}
 FunctionEnd
 
-Section "Configura" MainSection
+Section "Ini Studio" MainSection
   AddSize ${APP_64_UNPACKED_SIZE}
   Call ValidateInstallDirectory
   Call WaitForConfiguraToClose
@@ -173,7 +173,7 @@ Section "Configura" MainSection
     IfErrors copy_failed copy_complete
   copy_failed:
     IfSilent install_failed
-    MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "Não foi possível copiar os arquivos. Verifique o espaço no disco, feche o Configura e tente novamente." IDRETRY copy_payload IDCANCEL install_failed
+    MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "Não foi possível copiar os arquivos. Verifique o espaço no disco, feche o Ini Studio e tente novamente." IDRETRY copy_payload IDCANCEL install_failed
   install_failed:
     SetErrorLevel 1603
     Abort "A instalação não foi concluída. Execute novamente o instalador."
@@ -197,15 +197,21 @@ Section "Configura" MainSection
   !endif
   !insertmacro customInstall
   !ifndef DO_NOT_CREATE_START_MENU_SHORTCUT
-    CreateShortcut "$SMPROGRAMS\Configura.lnk" "$INSTDIR\${CONFIGURA_EXE}" "" "$INSTDIR\${CONFIGURA_EXE}" 0
-    WinShell::SetLnkAUMI "$SMPROGRAMS\Configura.lnk" "${APP_ID}"
+    Delete "$SMPROGRAMS\Configura.lnk"
+    CreateShortcut "$SMPROGRAMS\Ini Studio.lnk" "$INSTDIR\${CONFIGURA_EXE}" "" "$INSTDIR\${CONFIGURA_EXE}" 0
+    WinShell::SetLnkAUMI "$SMPROGRAMS\Ini Studio.lnk" "${APP_ID}"
   !endif
   !ifndef DO_NOT_CREATE_DESKTOP_SHORTCUT
+    ; Migrate an existing desktop shortcut without restoring deleted shortcuts.
+    IfFileExists "$DESKTOP\Configura.lnk" 0 no_old_shortcut
+      Delete "$DESKTOP\Configura.lnk"
+      CreateShortcut "$DESKTOP\Ini Studio.lnk" "$INSTDIR\${CONFIGURA_EXE}" "" "$INSTDIR\${CONFIGURA_EXE}" 0
+      WinShell::SetLnkAUMI "$DESKTOP\Ini Studio.lnk" "${APP_ID}"
+    no_old_shortcut:
     ${IfNot} ${isNoDesktopShortcut}
-      ; Preserve a user's removal of the desktop shortcut across app updates.
       ${IfNot} ${isUpdated}
-        CreateShortcut "$DESKTOP\Configura.lnk" "$INSTDIR\${CONFIGURA_EXE}" "" "$INSTDIR\${CONFIGURA_EXE}" 0
-        WinShell::SetLnkAUMI "$DESKTOP\Configura.lnk" "${APP_ID}"
+        CreateShortcut "$DESKTOP\Ini Studio.lnk" "$INSTDIR\${CONFIGURA_EXE}" "" "$INSTDIR\${CONFIGURA_EXE}" 0
+        WinShell::SetLnkAUMI "$DESKTOP\Ini Studio.lnk" "${APP_ID}"
       ${EndIf}
     ${EndIf}
   !endif
@@ -238,7 +244,7 @@ Section "Uninstall"
     Pop $0
     ${If} $0 == 0
       IfSilent un_busy
-      MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "Salve seus arquivos e feche o Configura antes de desinstalar." IDRETRY un_check_running IDCANCEL un_busy
+      MessageBox MB_RETRYCANCEL|MB_ICONEXCLAMATION "Salve seus arquivos e feche o Ini Studio antes de desinstalar." IDRETRY un_check_running IDCANCEL un_busy
     ${EndIf}
     Goto un_proceed
   un_busy:
@@ -249,6 +255,8 @@ Section "Uninstall"
   WinShell::UninstAppUserModelId "${APP_ID}"
   Delete "$DESKTOP\Configura.lnk"
   Delete "$SMPROGRAMS\Configura.lnk"
+  Delete "$DESKTOP\Ini Studio.lnk"
+  Delete "$SMPROGRAMS\Ini Studio.lnk"
   DeleteRegKey HKCU "${CONFIGURA_UNINSTALL_KEY}"
   DeleteRegKey HKCU "${CONFIGURA_APP_KEY}"
   SetOutPath "$TEMP"

@@ -3,7 +3,7 @@
 !macro ConfiguraRegisterExtension EXT
   WriteRegStr HKCU "Software\Classes\Applications\Configura.exe\SupportedTypes" ".${EXT}" ""
   WriteRegStr HKCU "Software\Classes\.${EXT}\OpenWithProgids" "Configura.ConfigFile" ""
-  WriteRegStr HKCU "Software\Classes\SystemFileAssociations\.${EXT}\shell\Configura.Edit" "" "Editar com Configura"
+  WriteRegStr HKCU "Software\Classes\SystemFileAssociations\.${EXT}\shell\Configura.Edit" "" "Editar com Ini Studio"
   WriteRegStr HKCU "Software\Classes\SystemFileAssociations\.${EXT}\shell\Configura.Edit" "Icon" '"$INSTDIR\Configura.exe",0'
   WriteRegStr HKCU "Software\Classes\SystemFileAssociations\.${EXT}\shell\Configura.Edit\command" "" '"$INSTDIR\Configura.exe" "%1"'
 !macroend
@@ -18,7 +18,7 @@
 !macroend
 
 !macro customInstall
-  WriteRegStr HKCU "Software\Classes\Applications\Configura.exe" "FriendlyAppName" "Configura"
+  WriteRegStr HKCU "Software\Classes\Applications\Configura.exe" "FriendlyAppName" "Ini Studio"
   WriteRegStr HKCU "Software\Classes\Applications\Configura.exe\DefaultIcon" "" '"$INSTDIR\Configura.exe",0'
   WriteRegStr HKCU "Software\Classes\Applications\Configura.exe\shell\open\command" "" '"$INSTDIR\Configura.exe" "%1"'
   WriteRegStr HKCU "Software\Classes\Configura.ConfigFile" "" "Arquivo de configuração"

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+- Marca **Ini Studio** na interface, atalhos, metadados e nome da release; identificadores técnicos e `Configura.exe` preservados para atualização de instalações antigas.
+- Arquivos Windows `IniStudio-Setup-1.1.0-x64.exe` e `IniStudio-1.1.0-x64.zip` produzidos após testes do workflow.
+- Página de downloads em [ini-studio.vercel.app](https://ini-studio.vercel.app), integrada às releases do GitHub.
+
 As versões seguem Semantic Versioning. Cada release publicada corresponde a uma tag e a um commit específico; assets de uma versão publicada não são substituídos pelo workflow.
 
 ## 1.0.0 — 2026-11-09

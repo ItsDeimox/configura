@@ -1,6 +1,6 @@
-<p align="center"><img src="build/icon.svg" width="86" alt="Símbolo do Configura"></p>
+<p align="center"><img src="build/icon.svg" width="86" alt="Símbolo do Ini Studio"></p>
 
-<h1 align="center">Configura</h1>
+<h1 align="center">Ini Studio</h1>
 
 <p align="center">Seu arquivo de configuração, com espaço para respirar.<br>Editor visual para Windows · x64 · MIT</p>
 
@@ -8,21 +8,23 @@ Uma interface escura e direta para ler e editar configurações: abas no topo, s
 
 ## Instalação
 
-O canal de distribuição do projeto é [GitHub Releases](https://github.com/ItsDeimox/configura/releases). Uma versão só está publicada quando seus arquivos aparecem nessa página.
+**Compatibilidade:** interface, atalhos e lista de programas usam **Ini Studio**. O executável continua `Configura.exe` e a pasta de instalação e identificadores internos antigos são preservados para manter atualizações, backups e preferências da versão 1.0.
+
+O site de download é [ini-studio.vercel.app](https://ini-studio.vercel.app). O canal de distribuição é [GitHub Releases](https://github.com/ItsDeimox/configura/releases). Uma versão só está publicada quando seus arquivos aparecem nessa página.
 
 | Arquivo | Uso |
 | --- | --- |
-| `Configura-Setup-1.0.0-x64.exe` | Instalador por usuário, com atalhos, **Abrir com** e **Editar com Configura**. |
-| `Configura-1.0.0-x64.zip` | Extraia a pasta inteira e execute `Configura.exe`. Mantenha os arquivos acompanhantes. |
+| `IniStudio-Setup-1.1.0-x64.exe` | Instalador por usuário, com atalhos, **Abrir com** e **Editar com Ini Studio**. |
+| `IniStudio-1.1.0-x64.zip` | Extraia a pasta inteira e execute `Configura.exe` (nome interno por compatibilidade). Mantenha os arquivos acompanhantes. |
 | `SHA256SUMS.txt` | Hash SHA-256 dos downloads da release. |
 
 Requer Windows 10/11 de 64 bits. Não precisa instalar Node.js para usar o aplicativo. O instalador deixa escolher a pasta e não exige privilégios de administrador. A versão ZIP não registra opções do Explorer; para a integração e as atualizações, prefira o instalador.
 
-A primeira distribuição **não tem assinatura Authenticode**. Por isso, o Windows pode mostrar “editor desconhecido” ou uma tela do SmartScreen. Os hashes permitem conferir a integridade do download, mas não substituem uma assinatura de identidade.
+As distribuições atuais **não têm assinatura Authenticode**. Por isso, o Windows pode mostrar “editor desconhecido” ou uma tela do SmartScreen. Os hashes permitem conferir a integridade do download, mas não substituem uma assinatura de identidade.
 
 ### Abrir com
 
-Depois de instalar, clique com o botão direito no arquivo e escolha **Abrir com → Configura**. O menu também pode mostrar **Editar com Configura**; no Windows 11, procure em **Mostrar mais opções** quando necessário. O instalador adiciona o Configura como opção, sem substituir o aplicativo padrão existente.
+Depois de instalar, clique com o botão direito no arquivo e escolha **Abrir com → Ini Studio**. O menu também pode mostrar **Editar com Configura**; no Windows 11, procure em **Mostrar mais opções** quando necessário. O instalador adiciona o Ini Studio como opção, sem substituir o aplicativo padrão existente.
 
 ## Usando o editor
 
@@ -55,7 +57,7 @@ O editor visual reconhece configurações em texto com seções `[nome]` e atrib
 
 Na edição visual, o parser altera somente o valor escolhido: mantém comentários, espaços, ordem, duplicatas, aspas e finais de linha das partes não editadas. Linhas desconhecidas permanecem no arquivo. Booleanos reconhecem `true/false`, `yes/no` e `on/off`; números com zeros à esquerda são tratados como texto para preservar sua representação.
 
-**Limites da versão 1.0:** não é um parser completo de TOML, JSON, XML, YAML, shell ou de todos os dialetos CFG. Sintaxe complexa, multilinha ou não reconhecida deve ser editada no modo **Texto**. O app não executa configurações, não expande variáveis e não valida regras específicas do jogo ou programa que utiliza o arquivo. `.toml` aparece no “Abrir com” para permitir edição textual; isso não significa suporte visual completo ao formato.
+**Limites atuais do editor visual:** não é um parser completo de TOML, JSON, XML, YAML, shell ou de todos os dialetos CFG. Sintaxe complexa, multilinha ou não reconhecida deve ser editada no modo **Texto**. O app não executa configurações, não expande variáveis e não valida regras específicas do jogo ou programa que utiliza o arquivo. `.toml` aparece no “Abrir com” para permitir edição textual; isso não significa suporte visual completo ao formato.
 
 Arquivos têm limite de **10 MiB**. São aceitos UTF-8 com ou sem BOM, UTF-16 LE/BE com BOM e Windows-1252 como alternativa para bytes que não forem UTF-8 válido. Sem um marcador explícito, a identificação de codificações antigas é uma convenção, não uma detecção universal. Arquivos binários ou que não possam ser regravados com os mesmos bytes são recusados.
 
@@ -72,7 +74,7 @@ GameData.ini.configura.bak
 
 O backup guarda **uma versão anterior**, sendo atualizado a cada gravação que muda o conteúdo. Para recuperar, feche a aba correspondente e copie o `.configura.bak` para o nome original, ou abra o backup e use **Salvar como**. Salvar sem mudanças não renova o backup.
 
-A gravação usa um arquivo temporário na mesma pasta e substituição por rename. Se outro programa alterar o arquivo desde sua abertura, o Configura mostra um conflito antes de sobrescrever. Não há autosave nem recuperação de alterações que nunca foram salvas após uma falha do processo.
+A gravação usa um arquivo temporário na mesma pasta e substituição por rename. Se outro programa alterar o arquivo desde sua abertura, o Ini Studio mostra um conflito antes de sobrescrever. Não há autosave nem recuperação de alterações que nunca foram salvas após uma falha do processo.
 
 Preferências, listas de enums, arquivos recentes e posição da janela ficam no perfil local do aplicativo. A desinstalação preserva esses dados. A edição funciona offline; a verificação de atualizações consulta o GitHub quando solicitada.
 

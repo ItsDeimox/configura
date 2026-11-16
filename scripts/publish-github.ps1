@@ -19,9 +19,9 @@ try {
     foreach ($command in @('git', 'gh')) {
         if (-not (Get-Command $command -ErrorAction SilentlyContinue)) { throw "Install $command before publishing." }
     }
-    if (-not (Test-Path package.json -PathType Leaf)) { throw 'Run this script from the Configura source project.' }
+    if (-not (Test-Path package.json -PathType Leaf)) { throw 'Run this script from the Ini Studio source project.' }
     $package = Get-Content package.json -Raw | ConvertFrom-Json
-    if ($package.name -ne 'configura') { throw 'The current project is not Configura.' }
+    if ($package.name -ne 'configura') { throw 'The current project is not Ini Studio.' }
 
     gh auth status --hostname github.com
     Assert-LastCommand 'GitHub authentication check'
@@ -48,14 +48,14 @@ try {
         }
         git add --all
         Assert-LastCommand 'Stage source files'
-        git commit -m "Release Configura $($package.version)"
+        git commit -m "Release Ini Studio $($package.version)"
         Assert-LastCommand 'Initial source commit'
     }
 
     $gitRoot = (git rev-parse --show-toplevel).Trim()
     Assert-LastCommand 'Repository root lookup'
     if ([IO.Path]::GetFullPath($gitRoot).TrimEnd('\', '/') -ine [IO.Path]::GetFullPath($projectRoot).TrimEnd('\', '/')) {
-        throw 'The Configura folder is inside another Git repository. Refusing to publish the parent repository.'
+        throw 'The Ini Studio folder is inside another Git repository. Refusing to publish the parent repository.'
     }
     $branch = (git branch --show-current).Trim()
     Assert-LastCommand 'Branch lookup'

@@ -5,7 +5,11 @@ const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { FileStore, FileStoreError, atomicWrite, MAX_BYTES } = require('./file-store.cjs');
 
-app.setName('Configura');
+app.setName('Ini Studio');
+// Reuse preferences from Configura 1.0 after changing the display name.
+const legacyUserData = path.join(app.getPath('appData'), 'Configura');
+require('node:fs').mkdirSync(legacyUserData, { recursive: true });
+app.setPath('userData', legacyUserData);
 app.setAppUserModelId('io.github.itsdeimox.configura');
 const store = new FileStore();
 const fileFilters = [
@@ -104,7 +108,7 @@ async function initializeUpdater() {
   try {
     await fs.access(path.join(path.dirname(process.execPath), 'Uninstall Configura.exe'));
   } catch {
-    setUpdateState({ status: 'unavailable', message: 'Esta é a versão ZIP. Instale o Configura com o instalador para receber atualizações pelo aplicativo.' });
+    setUpdateState({ status: 'unavailable', message: 'Esta é a versão ZIP. Instale o Ini Studio com o instalador para receber atualizações pelo aplicativo.' });
     return;
   }
   try {
@@ -268,7 +272,7 @@ function createWindow() {
   const requestedHeight = Number.isFinite(bounds?.height) ? bounds.height : 940;
   const width = Math.max(minWidth, Math.min(maxWidth, requestedWidth));
   const height = Math.max(minHeight, Math.min(maxHeight, requestedHeight));
-  mainWindow = new BrowserWindow({ width, height, minWidth, minHeight, frame: false, show: false, backgroundColor: '#101010', title: 'Configura', icon: app.isPackaged ? path.join(process.resourcesPath, 'icon.png') : path.join(__dirname, '..', 'build', 'icon.png'), autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, webSecurity: true, allowRunningInsecureContent: false, spellcheck: false } });
+  mainWindow = new BrowserWindow({ width, height, minWidth, minHeight, frame: false, show: false, backgroundColor: '#101010', title: 'Ini Studio', icon: app.isPackaged ? path.join(process.resourcesPath, 'icon.png') : path.join(__dirname, '..', 'build', 'icon.png'), autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, webSecurity: true, allowRunningInsecureContent: false, spellcheck: false } });
   mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   mainWindow.webContents.on('will-navigate', (event, url) => { if (url !== (devUrl || productionUrl)) event.preventDefault(); });
   mainWindow.webContents.on('will-attach-webview', (event) => event.preventDefault());
@@ -310,6 +314,6 @@ else {
       preferences.recentFiles = preferences.recentFiles.filter((v) => typeof v === 'string').slice(0, 12);
     } catch { /* Missing or interrupted preferences never prevent opening the editor. */ }
     setupIpc(); createWindow(); setupMenu(); initializeUpdater();
-  }).catch((error) => { dialog.showErrorBox('Configura', userError(error)); app.quit(); });
+  }).catch((error) => { dialog.showErrorBox('Ini Studio', userError(error)); app.quit(); });
   app.on('window-all-closed', () => app.quit());
 }

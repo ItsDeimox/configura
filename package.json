@@ -1,7 +1,7 @@
 {
   "name": "configura",
-  "productName": "Configura",
-  "version": "1.0.0",
+  "productName": "Ini Studio",
+  "version": "1.1.0",
   "description": "A beautiful, lossless configuration editor for Windows.",
   "author": {
     "name": "Deimox",
@@ -51,7 +51,7 @@
   },
   "build": {
     "appId": "io.github.itsdeimox.configura",
-    "productName": "Configura",
+    "productName": "Ini Studio",
     "executableName": "Configura",
     "asar": true,
     "compression": "normal",
@@ -89,7 +89,7 @@
         }
       ],
       "icon": "build/icon.ico",
-      "artifactName": "Configura-${version}-${arch}.${ext}",
+      "artifactName": "IniStudio-${version}-${arch}.${ext}",
       "signAndEditExecutable": false
     },
     "nsis": {
@@ -99,8 +99,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Configura",
-      "artifactName": "Configura-Setup-${version}-${arch}.${ext}",
+      "shortcutName": "Ini Studio",
+      "artifactName": "IniStudio-Setup-${version}-${arch}.${ext}",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "include": "build/installer.nsh",

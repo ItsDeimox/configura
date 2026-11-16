@@ -115,8 +115,8 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $required = @(
-            "release/Configura-Setup-$env:RELEASE_VERSION-x64.exe",
-            "release/Configura-$env:RELEASE_VERSION-x64.zip",
+            "release/IniStudio-Setup-$env:RELEASE_VERSION-x64.exe",
+            "release/IniStudio-$env:RELEASE_VERSION-x64.zip",
             'release/latest.yml'
           )
           foreach ($file in $required) {
@@ -134,7 +134,7 @@ jobs:
           const yaml = updaterRequire('js-yaml');
           const metadata = yaml.load(fs.readFileSync('release/latest.yml', 'utf8'));
           const version = process.env.RELEASE_VERSION;
-          const expected = `Configura-Setup-${version}-x64.exe`;
+          const expected = `IniStudio-Setup-${version}-x64.exe`;
           if (metadata.version !== version) throw new Error('latest.yml has a different version.');
           const installer = metadata.files?.find(file => decodeURIComponent(file.url) === expected);
           if (!installer) throw new Error(`latest.yml does not point to ${expected}.`);
@@ -153,13 +153,13 @@ jobs:
           }
           $checksums | Set-Content release/SHA256SUMS.txt -Encoding utf8NoBOM
           @"
-          ## Configura $env:RELEASE_VERSION
+          ## Ini Studio $env:RELEASE_VERSION
 
           Editor visual de configurações para Windows x64, com abas, tipos de valor, modo texto e backups.
 
-          - Instalar: Configura-Setup-$env:RELEASE_VERSION-x64.exe
-          - Executar sem instalar: extrair Configura-$env:RELEASE_VERSION-x64.zip e abrir Configura.exe.
-          - O instalador registra Abrir com e Editar com Configura sem trocar seu aplicativo padrão.
+          - Instalar: IniStudio-Setup-$env:RELEASE_VERSION-x64.exe
+          - Executar sem instalar: extrair IniStudio-$env:RELEASE_VERSION-x64.zip e abrir Configura.exe.
+          - O instalador registra Abrir com e Editar com Ini Studio sem trocar seu aplicativo padrão.
           - Atualizações da instalação ficam em Preferências > Atualizações.
           - Esta distribuição ainda não possui assinatura Authenticode.
 
@@ -175,16 +175,16 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $assets = @(
-            "release/Configura-Setup-$env:RELEASE_VERSION-x64.exe",
-            "release/Configura-$env:RELEASE_VERSION-x64.zip",
+            "release/IniStudio-Setup-$env:RELEASE_VERSION-x64.exe",
+            "release/IniStudio-$env:RELEASE_VERSION-x64.zip",
             'release/latest.yml',
             'release/SHA256SUMS.txt'
           ) | ForEach-Object { (Get-Item -LiteralPath $_).FullName }
           $assets += @(Get-ChildItem release -Filter '*.blockmap' -File | ForEach-Object { $_.FullName })
-          gh release create $env:RELEASE_TAG @assets --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "Configura $env:RELEASE_VERSION" --notes-file release/RELEASE_NOTES.md --draft
+          gh release create $env:RELEASE_TAG @assets --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "Ini Studio $env:RELEASE_VERSION" --notes-file release/RELEASE_NOTES.md --draft
           if ($LASTEXITCODE -ne 0) { throw 'Release creation/upload failed. No existing assets were overwritten.' }
           gh release edit $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY --draft=false --latest
           if ($LASTEXITCODE -ne 0) { throw 'Assets were uploaded, but release publication failed. Inspect the draft on GitHub.' }
-          "### Configura $env:RELEASE_VERSION" >> $env:GITHUB_STEP_SUMMARY
+          "### Ini Studio $env:RELEASE_VERSION" >> $env:GITHUB_STEP_SUMMARY
           "Published from commit $env:GITHUB_SHA." >> $env:GITHUB_STEP_SUMMARY
           "https://github.com/$env:GITHUB_REPOSITORY/releases/tag/$env:RELEASE_TAG" >> $env:GITHUB_STEP_SUMMARY
