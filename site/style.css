@@ -12,10 +12,10 @@
   --ease: cubic-bezier(.2,.75,.16,1);
 }
 *, *::before, *::after { box-sizing: border-box }
-html { scroll-behavior: smooth; scroll-padding-top: 70px }
+html { scroll-behavior: auto; scroll-padding-top: 70px }
 body {
   margin: 0; min-width: 320px; overflow-x: hidden;
-  background: var(--bg); color: var(--paper);
+  background: radial-gradient(ellipse 1000px 580px at 50% 130px, #171d27 0%, #10141b 43%, #0c0e11 100%); background-attachment: scroll; color: var(--paper);
   font: 400 14px/1.6 'DM Sans', Inter, system-ui, sans-serif;
 }
 a { color: inherit; text-decoration: none }
@@ -28,17 +28,18 @@ a:focus-visible, button:focus-visible, .preview-frame:focus-visible {
 [hidden] { display: none !important }
 
 /* The GPU field is a purely decorative, non-interactive layer. */
-.visual-backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none }
-#energy-canvas { display: block; width: 100%; height: 100%; opacity: .82 }
-.ambient-glow {
-  position: absolute; width: min(120vw, 1250px); height: 950px;
-  top: -380px; left: 50%; transform: translateX(-50%);
-  background: radial-gradient(ellipse, #171d2c95 0%, #11151d45 43%, transparent 72%);
-  z-index: -1;
-}
+.visual-backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; contain: paint; }
+#energy-canvas { display: block; position: absolute; left: 0; top: 0; width: 420px; height: 420px; max-width: none; opacity: 0; pointer-events: none; transform: translate3d(-600px,-600px,0); transition: opacity .2s ease-out; }
+.ambient-glow { display: none; }
 .noise-layer {
-  position: absolute; inset: 0; opacity: .21; mix-blend-mode: soft-light;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 110 110' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' opacity='.28' filter='url(%23n)'/%3E%3C/svg%3E");
+  position: absolute; inset: 0; opacity: .75;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(216,225,242,.046) .55px, transparent .85px),
+    linear-gradient(to right, rgba(157,184,223,.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(157,184,223,.015) 1px, transparent 1px);
+  background-size: 11px 11px, 140px 140px, 140px 140px;
+  background-position: 0 0, 0 0, 0 0;
+  pointer-events: none;
 }
 .site-header, main, .site-footer { position: relative; z-index: 1 }
 .site-header {
@@ -82,7 +83,7 @@ a:focus-visible, button:focus-visible, .preview-frame:focus-visible {
 }
 .hero-symbol {
   width: 99px; height: auto;
-  filter: drop-shadow(0 0 21px #ffffff30) drop-shadow(0 28px 38px #0006);
+  filter: none;
   color: #e9ebef; transform: translateY(-5px);
   animation: symbol-float 8s ease-in-out infinite;
 }
@@ -132,23 +133,23 @@ a:focus-visible, button:focus-visible, .preview-frame:focus-visible {
   border: 0; border-radius: 8px;
   background: linear-gradient(125deg,#f1f3f7,#d5d9e2);
   color: #171c22; font-size: 12px; font-weight: 700;
-  box-shadow: 0 16px 38px #0008, 0 0 38px #92bbff15;
+  box-shadow: 0 11px 22px #0007, inset 0 1px 0 rgba(255,255,255,.65);
   transition: transform .3s var(--ease),box-shadow .3s,background .3s;
   transform: translateZ(0);
 }
 .download-button::before {
   content: ""; pointer-events: none; position: absolute; inset: -1px;
   border-radius: inherit; z-index: -1;
-  background: radial-gradient(130px circle at var(--spot-x) var(--spot-y),#8ec4ff9c,transparent 95%);
-  filter: blur(13px); opacity: .42; transition: opacity .35s;
+  background: radial-gradient(105px circle at var(--spot-x) var(--spot-y),rgba(255,255,255,.68),transparent 78%);
+  opacity: .24; transition: opacity .22s;
 }
 .download-button::after {
   content: ""; pointer-events: none; position: absolute; inset: 0;
   border-radius: inherit;
-  background: radial-gradient(145px circle at var(--spot-x) var(--spot-y),#ffffff80,transparent 70%);
+  background: radial-gradient(120px circle at var(--spot-x) var(--spot-y),rgba(255,255,255,.42),transparent 78%);
   opacity: .13; transition: opacity .35s;
 }
-.download-button:hover { transform: translateY(-3px) translateZ(0); box-shadow: 0 24px 42px #000a, 0 0 48px #9cc3ff30 }
+.download-button:hover { transform: translateY(-2px); box-shadow: 0 15px 30px #000a, 0 0 18px #ffffff12, inset 0 1px 0 #fff }
 .download-button:hover::before { opacity: .94 }
 .download-button:hover::after { opacity: .44 }
 .download-button:active { transform: translateY(0) }
@@ -185,28 +186,27 @@ a:focus-visible, button:focus-visible, .preview-frame:focus-visible {
 .preview-aura {
   position: absolute; inset: 2% 5% -14%; z-index: -1; pointer-events: none;
   background: radial-gradient(ellipse 60% 35% at 50% 74%,#638ac229,transparent 90%);
-  filter: blur(45px);
+  opacity: .72;
 }
-.stage-corner { position: absolute; z-index: 6; pointer-events: none; width: 17px; height: 17px; border-color: #9dbfff80; border-style: solid; opacity: .17; transition: opacity .4s, filter .4s }
+.stage-corner { position: absolute; z-index: 6; pointer-events: none; width: 17px; height: 17px; border-color: #9dbfff80; border-style: solid; opacity: .17; transition: opacity .24s }
 .corner-top-left { left: 0; top: 0; border-width: 1px 0 0 1px }
 .corner-top-right { right: 0; top: 0; border-width: 1px 1px 0 0 }
 .corner-bottom-left { left: 0; bottom: 27px; border-width: 0 0 1px 1px }
 .corner-bottom-right { right: 0; bottom: 27px; border-width: 0 1px 1px 0 }
-.preview-stage:hover .stage-corner, .preview-stage:focus-within .stage-corner { opacity: .85; filter: drop-shadow(0 0 7px #6aaeffcc) }
+.preview-stage:hover .stage-corner, .preview-stage:focus-within .stage-corner { opacity: .9 }
 .preview-frame {
   --spot-x: 50%; --spot-y: 50%; --tilt-x: 0deg; --tilt-y: 0deg;
   position: relative; isolation: isolate; overflow: hidden; height: 468px;
   border: 1px solid #ffffff10; border-radius: 12px 12px 4px 4px;
-  background: #0c0d0f; transform: perspective(1300px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(0);
-  transform-origin: center center; transition: transform .64s var(--ease), box-shadow .64s var(--ease);
-  will-change: transform;
-  box-shadow: 0 36px 85px #000a,0 6px 30px #0008;
+  background: #0c0d0f; transform: none;
+  transform-origin: center center; transition: box-shadow .24s ease-out;
+  box-shadow: 0 24px 50px #0009, 0 1px 0 rgba(222,230,244,.07);
 }
-.preview-frame:hover, .preview-frame:focus-visible { box-shadow: 0 52px 120px #000b,0 0 65px #83b4ff0a }
+.preview-frame:hover, .preview-frame:focus-visible { box-shadow: 0 26px 54px #000b, 0 0 16px rgba(206,221,244,.08) }
 .preview-frame::before {
   content: ""; position: absolute; z-index: 7; inset: 0; border-radius: inherit;
   padding: 1px; pointer-events: none;
-  background: radial-gradient(275px circle at var(--spot-x) var(--spot-y), #b7d1ffb7 0, #809af14a 28%, transparent 75%);
+  background: radial-gradient(180px circle at var(--spot-x) var(--spot-y), rgba(237,243,255,.86) 0%, rgba(189,213,245,.20) 32%, transparent 78%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor; mask-composite: exclude;
   opacity: .35; transition: opacity .35s;
@@ -214,13 +214,12 @@ a:focus-visible, button:focus-visible, .preview-frame:focus-visible {
 .preview-frame:hover::before,.preview-frame:focus-visible::before { opacity: 1 }
 .preview-frame::after {
   content:"";position:absolute;z-index:5;inset:0;pointer-events:none;
-  background: radial-gradient(330px circle at var(--spot-x) var(--spot-y),#83b4ff15,transparent 82%);
-  mix-blend-mode: screen;opacity:.5;transition:opacity .45s;
+  background: radial-gradient(185px circle at var(--spot-x) var(--spot-y),rgba(241,245,252,.038),transparent 80%); opacity:.5;transition:opacity .2s;
 }
 .preview-frame:hover::after { opacity: 1 }
 .surface-sheen {
   position: absolute; z-index: 6; inset: 0; pointer-events: none;
-  background: linear-gradient(115deg,#ffffff08,transparent 34%,#8ec1ff04 55%,transparent 79%);
+  background: linear-gradient(115deg,rgba(255,255,255,.027),transparent 34%,rgba(255,255,255,.012) 55%,transparent 79%);
   opacity: .55; transition: opacity .35s;
 }
 .preview-frame:hover .surface-sheen { opacity: .95 }
@@ -360,4 +359,25 @@ a:focus-visible, button:focus-visible, .preview-frame:focus-visible {
   .tab {font-size:14px;padding:8px}
   .mode-switch {padding:3px}
   .workspace-toolbar {font-size:8px}
+}
+
+/* High-clarity SDR/wide-gamut treatment. True HDR is device/browser dependent. */
+body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+.download-button { background: linear-gradient(120deg,#f6f7f9 0%,#eef0f3 58%,#d9dde4 100%); }
+.download-button:hover { background: linear-gradient(120deg,#fff 0%,#f4f5f7 62%,#e3e5e9 100%); }
+.hero h1 { text-shadow: none; }
+.hero h1 i { text-shadow: 0 0 9px rgba(167,148,255,.25); }
+.preview-frame::before { opacity:.23; }
+.preview-frame:hover::before,.preview-frame:focus-visible::before { opacity:.84; }
+.preview-frame::after { mix-blend-mode: normal; }
+.preview-frame .property { border-top-color: rgba(255,255,255,.055); }
+.preview-frame .value { background:#121417; }
+.visual-backdrop.is-scrolling #energy-canvas { opacity:0 !important; }
+.effects-off #energy-canvas { opacity: 0 !important; }
+@media (hover: none), (pointer: coarse) {
+  #energy-canvas { display:none; }
+}
+@media (dynamic-range: high) and (color-gamut: p3) {
+  .hero-symbol { color: color(display-p3 .95 .965 .99); }
+  .download-button { background: linear-gradient(122deg,color(display-p3 .97 .975 .99),color(display-p3 .87 .89 .92)); }
 }
