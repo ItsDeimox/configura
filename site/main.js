@@ -71,3 +71,87 @@ async function load() {
   }
 }
 load();
+
+
+/* Motion is independent of the OS-wide animations toggle.
+   A persistent in-page control is available for accessibility/performance. */
+(function initMotion() {
+  const root = document.documentElement;
+  const toggle = document.getElementById('effects-toggle');
+  const label = document.getElementById('effects-label');
+  const reveal = [...document.querySelectorAll('[data-reveal]')];
+  const storage = 'ini-studio.effects.enabled';
+  let enabled = true;
+  try { enabled = localStorage.getItem(storage) !== 'false'; } catch (_) {}
+
+  function setEffects(on) {
+    enabled = on;
+    root.classList.toggle('effects-off', !on);
+    toggle.setAttribute('aria-pressed', String(on));
+    toggle.setAttribute('aria-label', on ? 'Desativar efeitos visuais' : 'Ativar efeitos visuais');
+    label.textContent = on ? 'Efeitos ativos' : 'Efeitos pausados';
+    window.dispatchEvent(new CustomEvent('ini-studio:effects', { detail: { enabled: on } }));
+    try { localStorage.setItem(storage, String(on)); } catch (_) {}
+  }
+  toggle.addEventListener('click', () => setEffects(!enabled));
+  setEffects(enabled);
+
+  // Content stays accessible even without IntersectionObserver or JS.
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    }, { rootMargin: '0px 0px -35px 0px', threshold: .08 });
+    for (const element of reveal) {
+      if (element.getBoundingClientRect().top < innerHeight * .92) {
+        element.classList.add('is-visible');
+      } else {
+        observer.observe(element);
+      }
+    }
+    root.classList.add('visual-ready');
+  } else {
+    reveal.forEach(e => e.classList.add('is-visible'));
+  }
+
+  const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
+  for (const surface of document.querySelectorAll('.energy-surface')) {
+    const preview = surface.id === 'app-preview';
+    let last = null, raf = 0;
+    function paintPointer() {
+      raf = 0;
+      if (!last || !enabled) return;
+      const box = surface.getBoundingClientRect();
+      const x = Math.max(0, Math.min(box.width, last.clientX - box.left));
+      const y = Math.max(0, Math.min(box.height, last.clientY - box.top));
+      surface.style.setProperty('--spot-x', x.toFixed(1) + 'px');
+      surface.style.setProperty('--spot-y', y.toFixed(1) + 'px');
+      if (preview && finePointer.matches) {
+        const nx = x / Math.max(box.width,1) - .5;
+        const ny = y / Math.max(box.height,1) - .5;
+        surface.style.setProperty('--tilt-x', (-ny * 4.2).toFixed(2) + 'deg');
+        surface.style.setProperty('--tilt-y', (nx * 5.2).toFixed(2) + 'deg');
+      }
+    }
+    surface.addEventListener('pointermove', e => {
+      last = e;
+      if (!raf) raf = requestAnimationFrame(paintPointer);
+    }, { passive: true });
+    surface.addEventListener('pointerleave', () => {
+      last = null; if(raf)cancelAnimationFrame(raf);raf=0;
+      if (preview) {
+        surface.style.setProperty('--tilt-x','0deg');
+        surface.style.setProperty('--tilt-y','0deg');
+      }
+    });
+    surface.addEventListener('blur', () => {
+      if (preview) {
+        surface.style.setProperty('--tilt-x','0deg');
+        surface.style.setProperty('--tilt-y','0deg');
+      }
+    });
+  }
+})();
