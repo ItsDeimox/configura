@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d0e10">
+  <meta name="description" content="Ini Studio: edite arquivos .ini e .cfg no Windows com uma interface visual simples. Baixe o instalador ou a versão portátil.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Ini Studio — seu arquivo, do seu jeito">
+  <meta property="og:description" content="Editor visual de arquivos de configuração para Windows. Simples, direto, sem bagunçar a formatação.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/style.css">
+  <title>Ini Studio — Editor de arquivos .ini e .cfg</title>
+</head>
+<body>
+  <div class="page-grain" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="site-brand" href="#inicio" aria-label="Ini Studio, início">
+      <svg width="34" height="21" viewBox="0 0 68 40" fill="none" aria-hidden="true"><path d="M8 1H67L63.5 18H4.5L8 1ZM4 22H31L27.3 39H0.300003L4 22ZM35 22H62.7L59 39H31.3L35 22Z" fill="currentColor"/></svg>
+      <span>ini<span class="brand-light">studio</span></span>
+    </a>
+    <a class="nav-github" href="https://github.com/ItsDeimox/configura" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="inicio">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="stage" aria-hidden="true">
+        <div class="stage-orbit stage-orbit-outer"></div>
+        <div class="stage-orbit stage-orbit-inner"></div>
+        <div class="stage-glow"></div>
+        <div class="hero-symbol">
+          <svg viewBox="0 0 68 40" fill="none"><path d="M8 1H67L63.5 18H4.5L8 1ZM4 22H31L27.3 39H0.300003L4 22ZM35 22H62.7L59 39H31.3L35 22Z" fill="currentColor"/></svg>
+        </div>
+        <span class="stage-cross stage-cross-a"></span>
+        <span class="stage-cross stage-cross-b"></span>
+      </div>
+      <p class="kicker"><span class="kicker-dot"></span> EDITOR DE CONFIGURAÇÕES <span class="kicker-separator">/</span> WINDOWS</p>
+      <h1 id="hero-title">ini<span>studio</span><b>.</b></h1>
+      <p class="hero-description">Seu arquivo, do seu jeito.<br><span>Edite .ini, .cfg e outros arquivos de configuração sem se perder em linhas de texto.</span></p>
+      <div class="download-group">
+        <a id="download-link" class="download-button" href="https://github.com/ItsDeimox/configura/releases/latest" rel="noopener noreferrer">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"/></svg>
+          <span>Baixar para Windows</span>
+          <span class="button-key" aria-hidden="true">↗</span>
+        </a>
+        <div class="download-meta">
+          <span id="version-text">Instalador para Windows 10/11 · x64</span>
+          <span class="meta-divider" aria-hidden="true">·</span>
+          <a id="portable-link" href="https://github.com/ItsDeimox/configura/releases/latest" rel="noopener noreferrer">Versão portátil (.zip)</a>
+        </div>
+      </div>
+      <div class="release-stats" aria-live="polite">
+        <span class="stats-line"></span>
+        <span id="download-stat" hidden><span class="stat-label">DOWNLOADS DO APP</span> <strong id="download-count"></strong></span>
+        <span id="version-stat" hidden><span class="stat-label">VERSÃO</span> <strong id="version-number"></strong></span>
+        <span class="stats-line"></span>
+      </div>
+    </section>
+
+    <section class="preview-section" aria-labelledby="preview-heading">
+      <div class="preview-intro">
+        <span class="overline">01 / O EDITOR</span>
+        <h2 id="preview-heading">Tudo no lugar.<br><span>Inclusive as configurações.</span></h2>
+        <p>Abas, controles para cada tipo de valor e modo texto quando você precisar. Sem um painel a mais do que o necessário.</p>
+      </div>
+      <div class="preview-glow" aria-hidden="true"></div>
+      <div class="preview-frame">
+        <div class="window-title">
+          <span class="window-title-text">INI STUDIO</span>
+          <span class="window-actions" aria-hidden="true"><i></i><i></i><i></i></span>
+        </div>
+        <div class="editor-top">
+          <div class="editor-brand">
+            <svg width="33" height="20" viewBox="0 0 68 40" fill="none" aria-hidden="true"><path d="M8 1H67L63.5 18H4.5L8 1ZM4 22H31L27.3 39H0.300003L4 22ZM35 22H62.7L59 39H31.3L35 22Z" fill="currentColor"/></svg>
+            <span>inistudio<small>seu arquivo, do seu jeito.</small></span>
+          </div>
+          <div class="editor-tabs"><span class="tab active">GameData.ini <b>×</b></span><span class="tab">Config.ini <b>×</b></span><span class="add-tab">+</span></div>
+          <div class="editor-search">Buscar configuração <span aria-hidden="true">⌕</span></div>
+        </div>
+        <div class="editor-content">
+          <div class="editor-tools"><div><span class="editor-tiny-dot"></span> ARQUIVO DE EXEMPLO <span class="editor-file">/ GameData.ini</span></div><span class="editor-toggle"><b>Visual</b> Texto</span></div>
+          <div class="editor-section">
+            <div class="editor-section-header">⌄ <strong><em>[</em>PlayerData<em>]</em></strong> <span>+</span></div>
+            <div class="editor-row"><span>Nickname</span><span class="editor-value value-blue">Player_01</span></div>
+            <div class="editor-row"><span>MaxHealth</span><span class="editor-value value-green">100</span></div>
+            <div class="editor-row"><span>Fullscreen</span><span class="editor-value value-coral">● <i>on</i></span></div>
+            <div class="editor-row"><span>Quality</span><span class="editor-value value-violet">High <i>⌄</i></span></div>
+          </div>
+          <div class="editor-bottom"><span>4 propriedades</span><div><span>↶ reset</span><strong>save</strong></div></div>
+        </div>
+      </div>
+      <p class="preview-disclaimer">Prévia ilustrativa baseada na interface do aplicativo.</p>
+    </section>
+
+    <section class="brief-section" aria-label="Recursos essenciais">
+      <div><span class="brief-number">01</span><strong>Visual ou texto</strong><p>Escolha como editar.</p></div>
+      <div><span class="brief-number">02</span><strong>Salve sem bagunça</strong><p>Preserva as partes que você não alterou.</p></div>
+      <div><span class="brief-number">03</span><strong>Direto do Explorer</strong><p>Abra com o app pelo Windows.</p></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand"><svg width="22" height="14" viewBox="0 0 68 40" fill="none" aria-hidden="true"><path d="M8 1H67L63.5 18H4.5L8 1ZM4 22H31L27.3 39H0.300003L4 22ZM35 22H62.7L59 39H31.3L35 22Z" fill="currentColor"/></svg><span>INI STUDIO</span></div>
+    <p>Gratuito e open source (MIT). O instalador ainda não é assinado digitalmente.</p>
+    <a href="https://github.com/ItsDeimox/configura/releases/latest" target="_blank" rel="noopener noreferrer">Todas as versões ↗</a>
+  </footer>
+  <script src="/main.js" defer></script>
+</body>
+</html>
