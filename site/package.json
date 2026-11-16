@@ -1,0 +1,7 @@
+{
+  "name": "ini-studio-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static download page for Ini Studio"
+}
